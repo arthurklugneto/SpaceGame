@@ -1,0 +1,18 @@
+===========
+PART SYSTEM
+===========
+
+price         : number        price to buy on shop
+weight        : number        wheight added to ship
+hp            : number        part hp resistence to dammage
+h_power       : number        head power
+h_fuel        : number        head fuel
+
+interface MyObj {
+    myString: string;
+    myNumber: number;
+}
+
+let obj: MyObj = JSON.parse('{ "myString": "string", "myNumber": 4 }');
+console.log(obj.myString);
+console.log(obj.myNumber);
