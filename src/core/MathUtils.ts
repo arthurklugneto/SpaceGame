@@ -29,4 +29,8 @@ export class MathUtils {
     return "$"+ amount.toFixed(0);
   }
 
+  static randomFloatBetween(min:number,max:number):number{
+    return(Math.random() * (max - min) + min);
+  }
+
 }

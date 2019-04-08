@@ -1,6 +1,7 @@
 import { GameData } from '../../core/GameData';
 import { CloudPositioner } from '../../core/CloudPositioner';
 import { Player } from '../../components/game/Player'
+import { Constants } from '../../core/Constants';
 
 export class Sky extends Phaser.GameObjects.Container {
 
@@ -18,19 +19,21 @@ export class Sky extends Phaser.GameObjects.Container {
     this.skySprite.scaleX = 10000;
     this.skySprite.scaleY = 10;
 
-    this.cloudPositioner = _cloudPositioner;
+    if( Constants.GenerateClouds ){
+      this.cloudPositioner = _cloudPositioner;
 
-    this.cloudPositioner.addLowAltitudeCloud(GameData.Sky.CloudLow1.ImageName);
-    this.cloudPositioner.addLowAltitudeCloud(GameData.Sky.CloudLow2.ImageName);
-    this.cloudPositioner.addLowAltitudeCloud(GameData.Sky.CloudLow3.ImageName);
-    this.cloudPositioner.addLowAltitudeCloud(GameData.Sky.CloudLow4.ImageName);
-    this.cloudPositioner.addLowAltitudeCloud(GameData.Sky.CloudLow5.ImageName);
+      this.cloudPositioner.addLowAltitudeCloud(GameData.Sky.CloudLow1.ImageName);
+      this.cloudPositioner.addLowAltitudeCloud(GameData.Sky.CloudLow2.ImageName);
+      this.cloudPositioner.addLowAltitudeCloud(GameData.Sky.CloudLow3.ImageName);
+      this.cloudPositioner.addLowAltitudeCloud(GameData.Sky.CloudLow4.ImageName);
+      this.cloudPositioner.addLowAltitudeCloud(GameData.Sky.CloudLow5.ImageName);
+    }
 
   }
 
   // *** Update ***
   public update(player:Player,time:number){
-    this.cloudPositioner.update(player,time);
+    if( this.cloudPositioner != null )this.cloudPositioner.update(player,time);
   }
 
 

@@ -1,5 +1,5 @@
 Arguments: 
-  /usr/local/bin/node /usr/local/bin/yarn dist
+  /usr/local/bin/node /usr/local/bin/yarn build
 
 PATH: 
   /opt/OpenPrinting-Gutenprint/sbin:/opt/OpenPrinting-Gutenprint/bin:/home/arklug/bin:/home/arklug/.local/bin:/opt/OpenPrinting-Gutenprint/sbin:/opt/OpenPrinting-Gutenprint/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:~/Ionic/Weather/android-sdk-linux/platform-tools:~/Ionic/Weather/android-sdk-linux/tools:~/Ionic/Weather/android-sdk-linux/build-tools/24.0.1/:/snap/bin:/home/arklug/.dotnet/tools:/usr/lib/jvm/java-8-oracle/bin:/usr/lib/jvm/java-8-oracle/db/bin:/usr/lib/jvm/java-8-oracle/jre/bin:/home/arklug/.dotnet/tools:/usr/lib/jvm/java-8-oracle/bin:/usr/lib/jvm/java-8-oracle/db/bin:/usr/lib/jvm/java-8-oracle/jre/bin:/opt/HYBRISCOMM6000P_X-XXXXXXXX/hybris/bin/platform/apache-ant-1.9.1/bin
@@ -50,7 +50,9 @@ npm manifest:
     "author": "distantcam",
     "license": "MIT",
     "dependencies": {
-      "phaser": "^3.16.2"
+      "open-simplex-noise": "^1.6.0",
+      "phaser": "^3.16.2",
+      "ts-md5": "^1.2.4"
     },
     "devDependencies": {
       "cross-env": "^5.2.0",
@@ -6627,7 +6629,7 @@ Trace:
   Error: Command failed.
   Exit code: 1
   Command: sh
-  Arguments: -c yarn build && electron-builder
+  Arguments: -c rimraf build && parcel build src/main.ts src/index.html --public-url ./ -d build --out-file=main --target=electron
   Directory: /home/arklug/Área de Trabalho/Arthur/space
   Output:
   

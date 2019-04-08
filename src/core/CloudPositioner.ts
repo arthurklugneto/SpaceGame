@@ -1,5 +1,6 @@
 import { Player } from '../components/game/Player'
-import { Constants } from '../core/Constants';
+import { Constants } from './Constants';
+import { MathUtils } from './MathUtils';
 import { Md5 } from 'ts-md5/dist/md5';
 import OpenSimplexNoise from 'open-simplex-noise';
 import OpenSimplexNoise from 'pen-simplex-noise/lib';
@@ -20,8 +21,10 @@ export class CloudPositioner extends Phaser.GameObjects.Container {
   private HalfHeight: number = 0;
   private MarginWidth: number = 0;
   private MarginHeight: number = 0;
-  private cloudGenerationStep:number = 10;
-  private cloudGenerationProbability:number = 0.82;
+  private cloudGenerationStep: number = 10;
+  private cloudGenerationProbability: number = 0.82;
+  private maxCloudSizeMultiplyer = 3;
+  private minCloudOpacity = 0.1;
 
   // *** Constructor ***
   constructor(_scene: Phaser.Scene, _x: number, _y: number) {
@@ -50,13 +53,12 @@ export class CloudPositioner extends Phaser.GameObjects.Container {
       this.createInitialClouds(player.x, player.y);
     }
 
-    console.log(this.clouds.length);
-
     //remove clouds outside de bounds
     for (var i = 0; i < this.clouds.length; i++) {
       var cloud = this.scene.children.getByName(this.clouds[i]) as Phaser.GameObjects.Sprite;
       if (cloud != null) {
         if (this.isCloudOutsideBounds(cloud, player)) {
+          this.createCloud(player,cloud);
           cloud.destroy();
           this.removeCloud(this.clouds[i]);
         }
@@ -82,17 +84,18 @@ export class CloudPositioner extends Phaser.GameObjects.Container {
 
     for (var w = playerX - (this.HalfWidth + this.MarginWidth); w < playerX + (this.HalfWidth + this.MarginWidth); w += this.cloudGenerationStep) {
       for (var h = playerY - (this.HalfHeight + this.MarginHeight); h < playerY + (this.HalfHeight + this.MarginHeight); h += this.cloudGenerationStep) {
-        if( this.noise.noise2D(w/this.cloudGenerationStep,h/this.cloudGenerationStep) > this.cloudGenerationProbability ){
-          var cloudName = 'Cloud.Low.#' + Md5.hashStr(Date.now());
-          var cloudIndex = Math.floor(Math.random()*this.lowAltitudeCloudSprite.length);
+        if (this.noise.noise2D(w / this.cloudGenerationStep, h / this.cloudGenerationStep) > this.cloudGenerationProbability) {
+          var cloudName = 'Cloud.Low.#' + Md5.hashStr(Date.now() + ":" + Math.random());
+          var cloudIndex = Math.floor(Math.random() * this.lowAltitudeCloudSprite.length);
 
           var cloud = new Phaser.GameObjects.Sprite(
             this.scene,
-            w,h,
+            w, h,
             this.lowAltitudeCloudSprite[cloudIndex]);
 
           cloud.setName(cloudName);
-
+          cloud.setScale(MathUtils.randomFloatBetween(1,this.maxCloudSizeMultiplyer));
+          cloud.setAlpha(MathUtils.randomFloatBetween(this.minCloudOpacity,1));
           this.scene.add.existing(cloud);
           this.clouds.push(cloudName);
         }
@@ -104,10 +107,8 @@ export class CloudPositioner extends Phaser.GameObjects.Container {
   }
 
   private isCloudOutsideBounds(cloud: Phaser.GameObjects.Sprite, player: Player): boolean {
-    console.log(cloud.name+">"+cloud.x);
-    return cloud.x < (player.x-(this.HalfWidth+this.MarginWidth));
-    //console.log(cloud.name+">"+cloud.x);
-    //return cloud.x > (player.x+(this.HalfWidth+this.MarginWidth));
+    var distanceToPlayer = this.distanceBetweenCloudAndPlayer(player.x, player.y, cloud.x, cloud.y);
+    return distanceToPlayer > 1000;
   }
 
   private removeCloud(cloud: string) {
@@ -117,28 +118,25 @@ export class CloudPositioner extends Phaser.GameObjects.Container {
     }
   }
 
-  private createCloud(player: Player, oldCloud: Phaser.GameObjects.Sprite, time: number) {
-    // generate random position for new cloud
-    var cloudX = player.x;
-    var cloudY = player.y;
-    var cloudName = 'Cloud.Low.#' + Md5.hashStr(time.toString());
-
-    // select a random low altitude cloud
+  private createCloud(player: Player, oldCloud: Phaser.GameObjects.Sprite) {
+    var cloudName = 'Cloud.Low.#' + Md5.hashStr(Date.now() + ":" + Math.random());
     var cloudIndex = Math.floor(Math.random() * this.lowAltitudeCloudSprite.length);
 
-    // create the new cloud
+    var dx = Math.abs(player.x - oldCloud.x);
+    var dy = Math.abs(player.y - oldCloud.y);
+
+    var newX = oldCloud.x < player.x ? dx : -dx;
+    var newY = oldCloud.y < player.y ? dy : -dy;
+
     var cloud = new Phaser.GameObjects.Sprite(
       this.scene,
-      cloudX, cloudY,
+      player.x+newX,player.y+newY,
       this.lowAltitudeCloudSprite[cloudIndex]);
 
-    // set a random alpha value
-    // for this cloud and its name
-    cloud.setAlpha(Math.random());
-    cloud.setScale(Math.random() * 2);
     cloud.setName(cloudName);
+    cloud.setScale(MathUtils.randomFloatBetween(1,this.maxCloudSizeMultiplyer));
+    cloud.setAlpha(MathUtils.randomFloatBetween(this.minCloudOpacity,1));
 
-    // adds the new cloud
     this.scene.add.existing(cloud);
     this.clouds.push(cloudName);
   }
@@ -148,35 +146,3 @@ export class CloudPositioner extends Phaser.GameObjects.Container {
   }
 
 }
-
-
-    /*
-    var simplex = new OpenSimplexNoise(Date.now());
-    console.log( simplex.noise2D(1,0) );
-
-    this.clouds = [];
-    for (var i = 0; i < 1000; i++) {
-      var randX = Math.random() * 10000 - 5000;
-      var randY = Math.random() * 10000 - 5000 + 10000;
-      this.clouds.push(this.scene.add.sprite(-randX, -randY, GameData.Sky.Cloud1.ImageName));
-    }
-
-    // Para objeto
-Object.assign( this.newObject, objReferencia );
-this.newObject = Object.create(objReferencia);
-// Para lista
-this.listaObjetos = Array.from( this.oldListaObjetos );
-
-
-// Para objeto
-    this.newObject = {...objReferencia};
-    // Para lista
-    this.listaObjetos = [...this.oldListaObjetos];
-
-    /*
-    if( Math.round(time/1000) != this.lastTime ){
-      this.lastTime = Math.round(time/1000);
-      var randomNumber = Math.floor(Math.random()*this.lowAltitudeCloudSprite.length);
-      this.clouds.push( scene.add.sprite(player.x,player.y,this.lowAltitudeCloudSprite[randomNumber]) );
-    }
-    */

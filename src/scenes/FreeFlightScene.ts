@@ -78,7 +78,7 @@ export class FreeFlightScene extends Phaser.Scene {
 
   private configureKeyInputs() {
     // configure keys to be used as input
-    this.keys = this.input.keyboard.addKeys('W,A,S,D');
+    this.keys = this.input.keyboard.addKeys('W,A,S,D,Q');
   }
 
   private configureSceneImages() {
@@ -139,6 +139,7 @@ export class FreeFlightScene extends Phaser.Scene {
     var zoom = MathUtils.Map(this.player.Speed, 0, 50, 1, 0.5);
     if (zoom < 0.5) zoom = 0.5;
     if (zoom > 1) zoom = 1;
+    if (this.keys.Q.isDown) zoom = 0.1;
     this.camera.zoom = zoom;
 
     // update the gui
